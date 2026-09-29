@@ -1,29 +1,23 @@
 using UnityEngine;
 using TMPro;
 
+// Pure display component: reads the running level time from GameManager,
+// which is the persistent source of truth across scene loads
 
 public class GameTimer : MonoBehaviour
 {
     public TextMeshProUGUI timerText;
-    private float elapsedTime;
-    private bool isRunning = true;
 
     void Update()
     {
-        if (!isRunning) return;
+        if (GameManager.Instance == null || timerText == null) return;
 
-        elapsedTime += Time.deltaTime;
-        UpdateDisplay();
+        UpdateDisplay(GameManager.Instance.CurrentLevelTime);
     }
-
-    void UpdateDisplay()
+    void UpdateDisplay(float elapsedTime)
     {
         int minutes = Mathf.FloorToInt(elapsedTime / 60f);
         int seconds = Mathf.FloorToInt(elapsedTime % 60f);
         timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
-
-    public void StopTimer() => isRunning = false;
-    public void ResumeTimer() => isRunning = true;
-    public float GetElapsedTime() => elapsedTime;
 }
