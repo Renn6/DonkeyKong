@@ -13,16 +13,12 @@ public class GameManager : MonoBehaviour
     private TextMeshProUGUI livesText;
     private TextMeshProUGUI levelIntroText;
 
-    private void Start()
+    private void Awake()
     {
-        if (Instance != null)
-        {
-          Destroy(gameObject);
-         return;
-        }
+        if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
-    }  
+    }
 
     public void StartGame()
     {
@@ -39,6 +35,7 @@ public class GameManager : MonoBehaviour
     private void LoadLevel(int index)
     {
         level = index;
+        Time.timeScale = 1f; // always ensure gameplay starts unfrozen
         SceneManager.LoadScene(level);
         StartCoroutine(SetupSceneAfterLoad());
 
