@@ -3005,7 +3005,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 787183507}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: QuitToMainMenu
         m_Mode: 1
@@ -3913,6 +3913,7 @@ GameObject:
   - component: {fileID: 540272850}
   - component: {fileID: 540272852}
   - component: {fileID: 540272851}
+  - component: {fileID: 540272853}
   m_Layer: 5
   m_Name: PausePanel
   m_TagString: Untagged
@@ -3984,6 +3985,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 540272849}
   m_CullTransparentMesh: 1
+--- !u!114 &540272853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 540272849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62f6242640f89481e97b195a6a549721, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
+  pausePanel: {fileID: 540272849}
 --- !u!1001 &556016783
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4580,7 +4594,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 787183507}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: Resume
         m_Mode: 1
@@ -5060,8 +5074,6 @@ GameObject:
   m_Component:
   - component: {fileID: 787183505}
   - component: {fileID: 787183506}
-  - component: {fileID: 787183504}
-  - component: {fileID: 787183507}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -5069,19 +5081,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &787183504
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 787183503}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48a7e324484f34d09a96f10d52d4da6c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameTimer
-  timerText: {fileID: 2071580064}
 --- !u!4 &787183505
 Transform:
   m_ObjectHideFlags: 0
@@ -5109,19 +5108,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 911838f41a81c4189a4ad3e6fd05a49d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
---- !u!114 &787183507
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 787183503}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62f6242640f89481e97b195a6a549721, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
-  pausePanel: {fileID: 540272849}
 --- !u!4 &789571675 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4874154968187986317, guid: 510d96a85a97c4aadbf1384bac4b6a13, type: 3}
@@ -10260,11 +10246,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7515724095234539174, guid: 7c027c9f2203e4c82b3e6f00acce5e81, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10.097
+      value: -3.52
       objectReference: {fileID: 0}
     - target: {fileID: 7515724095234539174, guid: 7c027c9f2203e4c82b3e6f00acce5e81, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.415
+      value: 10.04
       objectReference: {fileID: 0}
     - target: {fileID: 7515724095234539174, guid: 7c027c9f2203e4c82b3e6f00acce5e81, type: 3}
       propertyPath: m_LocalPosition.z
@@ -11433,6 +11419,7 @@ GameObject:
   - component: {fileID: 2071580063}
   - component: {fileID: 2071580065}
   - component: {fileID: 2071580064}
+  - component: {fileID: 2071580066}
   m_Layer: 5
   m_Name: TimerText
   m_TagString: Untagged
@@ -11559,6 +11546,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2071580062}
   m_CullTransparentMesh: 1
+--- !u!114 &2071580066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2071580062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48a7e324484f34d09a96f10d52d4da6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameTimer
+  timerText: {fileID: 2071580064}
 --- !u!4 &2093486122 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1129175522979579159, guid: 7f7cd3c4aa31149ceb786cfa95efd7b0, type: 3}

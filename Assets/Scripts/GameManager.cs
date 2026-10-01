@@ -13,6 +13,25 @@ public class GameManager : MonoBehaviour
     private TextMeshProUGUI livesText;
     private TextMeshProUGUI levelIntroText;
 
+    private float elapsedTime;
+    private bool timerRunning;
+
+    private void Update()
+    {
+        if (timerRunning)
+        {
+            elapsedTime += Time.deltaTime;
+        }
+    }
+
+    public void StartTimer()
+    {
+        elapsedTime = 0f;
+        timerRunning = true;
+    }
+
+    public float GetElapsedTime() => elapsedTime;
+
     private void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
@@ -29,6 +48,7 @@ public class GameManager : MonoBehaviour
     {
         lives = 3;
         score = 0;
+        StartTimer();
         LoadLevel(1);
     }
 
