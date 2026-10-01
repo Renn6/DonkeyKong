@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class MainMenu : MonoBehaviour
 {
-    public void PlayGame()
+    public void StartGame()
     {
         GameManager.Instance.StartGame();
     }
 
     public void QuitGame()
     {
-        Debug.Log("Quit game"); // shows in Console when testing in editor
+        Debug.Log("Quit game");
         Application.Quit();
     }
 }
