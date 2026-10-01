@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     private TextMeshProUGUI livesText;
+    private TextMeshProUGUI scoreText;
     private TextMeshProUGUI levelIntroText;
 
     private float elapsedTime;
@@ -77,6 +78,10 @@ public class GameManager : MonoBehaviour
         if (livesObj != null) livesText = livesObj.GetComponent<TextMeshProUGUI>();
         UpdateLivesUI();
 
+        GameObject scoreObj = GameObject.Find("ScoreText"); // new
+        if (scoreObj != null) scoreText = scoreObj.GetComponent<TextMeshProUGUI>();
+        UpdateScoreUI(); // new
+
         GameObject introObj = GameObject.Find("LevelIntroText");
         if (introObj != null)
         {
@@ -116,9 +121,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void UpdateScoreUI()
+    {
+        if (scoreText != null)
+        {
+            scoreText.text = "Score: " + score;
+        }
+    }
+
     public void LevelComplete()
     {
         score += 1000;
+        UpdateScoreUI();
         int nextLevel = level + 1;
 
         if (nextLevel < SceneManager.sceneCountInBuildSettings)
