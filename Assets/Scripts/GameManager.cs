@@ -12,7 +12,6 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     private TextMeshProUGUI livesText;
-    private TextMeshProUGUI scoreText;
     private TextMeshProUGUI levelIntroText;
 
     // --- Timing --- //
@@ -26,9 +25,13 @@ public class GameManager : MonoBehaviour
     public IReadOnlyDictionary<int, float> LevelTimes => levelTimes;
     public float TotalTime => totalTime;
 
-    private void Awake()
+    private void Start()
     {
-        if (Instance != null) { Destroy(gameObject); return; }
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
@@ -40,15 +43,6 @@ public class GameManager : MonoBehaviour
             currentLevelTime += Time.deltaTime;
         }
     }
-
-    // kept from main so any other script calling these still compiles
-    public void StartTimer()
-    {
-        currentLevelTime = 0f;
-        timerRunning = true;
-    }
-
-    public float GetElapsedTime() => currentLevelTime;
 
     public void StartGame()
     {
@@ -67,7 +61,6 @@ public class GameManager : MonoBehaviour
     private void LoadLevel(int index)
     {
         level = index;
-        Time.timeScale = 1f; // always ensure gameplay starts unfrozen
 
         // fresh clock every time player enters level, including retries
         currentLevelTime = 0f;
@@ -100,10 +93,6 @@ public class GameManager : MonoBehaviour
         GameObject livesObj = GameObject.Find("LivesText");
         if (livesObj != null) livesText = livesObj.GetComponent<TextMeshProUGUI>();
         UpdateLivesUI();
-
-        GameObject scoreObj = GameObject.Find("ScoreText"); // new
-        if (scoreObj != null) scoreText = scoreObj.GetComponent<TextMeshProUGUI>();
-        UpdateScoreUI(); // new
 
         GameObject introObj = GameObject.Find("LevelIntroText");
 
@@ -146,14 +135,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void UpdateScoreUI()
-    {
-        if (scoreText != null)
-        {
-            scoreText.text = "Score: " + score;
-        }
-    }
-
     public void LevelComplete()
     {
         timerRunning = false;
@@ -161,7 +142,6 @@ public class GameManager : MonoBehaviour
         totalTime += currentLevelTime;
 
         score += 1000;
-        UpdateScoreUI();
         int nextLevel = level + 1;
 
         if (nextLevel < SceneManager.sceneCountInBuildSettings)
