@@ -8,6 +8,11 @@ public class GameManager : MonoBehaviour
     private int level;
     private int lives;
     private int score;
+
+    // Princess rescue tracking
+    private int princessesRescued;
+    private int princessesRequired = 1;
+
     public static GameManager Instance { get; private set; }
 
     private TextMeshProUGUI livesText;
@@ -58,6 +63,11 @@ public class GameManager : MonoBehaviour
     private void LoadLevel(int index)
     {
         level = index;
+
+        // reset rescue progress every time a level (re)loads
+        princessesRescued = 0;
+        princessesRequired = 1;
+
         Time.timeScale = 1f; // always ensure gameplay starts unfrozen
         SceneManager.LoadScene(level);
         StartCoroutine(SetupSceneAfterLoad());
@@ -73,6 +83,10 @@ public class GameManager : MonoBehaviour
     private IEnumerator SetupSceneAfterLoad()
     {
         yield return null;
+
+        // count how many princesses (Objective-tagged objects) this level has
+        princessesRequired = Mathf.Max(1, GameObject.FindGameObjectsWithTag("Objective").Length);
+        princessesRescued = 0;
 
         GameObject livesObj = GameObject.Find("LivesText");
         if (livesObj != null) livesText = livesObj.GetComponent<TextMeshProUGUI>();
@@ -132,6 +146,19 @@ public class GameManager : MonoBehaviour
         if (scoreText != null)
         {
             scoreText.text = "Score: " + score;
+        }
+    }
+
+    // Called by the Player each time a princess is rescued
+    public void PrincessRescued()
+    {
+        princessesRescued++;
+        score += 500; // bonus per princess (remove if you don't want it)
+        UpdateScoreUI();
+
+        if (princessesRescued >= princessesRequired)
+        {
+            LevelComplete();
         }
     }
 

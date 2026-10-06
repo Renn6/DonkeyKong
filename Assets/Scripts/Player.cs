@@ -129,8 +129,10 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Objective"))
         {
-            enabled = false;
-            FindFirstObjectByType<GameManager>().LevelComplete();
+            // princess rescued: remove her so she can't be counted twice,
+            // then let the GameManager decide whether the level is finished
+            collision.gameObject.SetActive(false);
+            FindFirstObjectByType<GameManager>().PrincessRescued();
         }
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
