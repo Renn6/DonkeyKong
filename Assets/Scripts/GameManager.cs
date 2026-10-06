@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
     private TextMeshProUGUI livesText;
     private TextMeshProUGUI scoreText;
     private TextMeshProUGUI levelIntroText;
+    private TextMeshProUGUI dieScreenText;
+    private GameObject dieScreenPanel;
 
     private float elapsedTime;
     private bool timerRunning;
@@ -70,17 +72,21 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator SetupSceneAfterLoad()
     {
-        // wait one frame so the new scene's objects exist
         yield return null;
 
-        // re-find UI references since old scene's Canvas was destroyed
         GameObject livesObj = GameObject.Find("LivesText");
         if (livesObj != null) livesText = livesObj.GetComponent<TextMeshProUGUI>();
         UpdateLivesUI();
 
-        GameObject scoreObj = GameObject.Find("ScoreText"); // new
-        if (scoreObj != null) scoreText = scoreObj.GetComponent<TextMeshProUGUI>();
-        UpdateScoreUI(); // new
+        GameObject dieObj = GameObject.Find("DieScreenText");
+        if (dieObj != null) dieScreenText = dieObj.GetComponent<TextMeshProUGUI>();
+
+        GameObject diePanelObj = GameObject.Find("DieScreenPanel"); // new
+        if (diePanelObj != null)
+        {
+            dieScreenPanel = diePanelObj;
+            dieScreenPanel.SetActive(false); // disable the whole panel here, in code
+        }
 
         GameObject introObj = GameObject.Find("LevelIntroText");
         if (introObj != null)
@@ -149,11 +155,46 @@ public class GameManager : MonoBehaviour
     {
         lives--;
         UpdateLivesUI();
+        StartCoroutine(ShowDieScreenThenContinue());
+    }
+
+
+    private IEnumerator ShowDieScreenThenContinue()
+    {
+        if (dieScreenText != null)
+        {
+            if (lives > 0)
+            {
+                dieScreenText.text = "You Died\n" + lives + " Lives Remaining\nPress Enter to Respawn";
+            }
+            else
+            {
+                dieScreenText.text = "Game Over\nPress Enter to Restart";
+            }
+
+            dieScreenPanel.SetActive(true);
+            Time.timeScale = 0f;
+
+            // brief pause so the player doesn't accidentally skip it
+            // by still holding a key down from the moment they died
+            yield return new WaitForSecondsRealtime(0.3f);
+
+            // wait here until the player actually presses Enter
+            while (!Input.GetKeyDown(KeyCode.Return) && !Input.GetKeyDown(KeyCode.KeypadEnter))
+            {
+                yield return null;
+            }
+
+            dieScreenPanel.SetActive(false);
+        }
+
+        Time.timeScale = 1f;
 
         if (lives <= 0)
         {
             NewGame();
-        } else
+        }
+        else
         {
             LoadLevel(level);
         }
