@@ -5,6 +5,7 @@ public class Player : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     public Sprite[] runSprites;
     public Sprite climbSprite;
+    public Sprite idleSprite;
     private int spriteIndex;
 
     private Rigidbody2D rigidbody;
@@ -116,6 +117,11 @@ public class Player : MonoBehaviour
             }
 
             spriteRenderer.sprite = runSprites[spriteIndex];
+        }
+        else
+        {
+            spriteRenderer.sprite = idleSprite;
+            spriteIndex = 0;
         }
     }
 

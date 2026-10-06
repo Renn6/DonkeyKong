@@ -165,7 +165,7 @@ public class GameManager : MonoBehaviour
         {
             if (lives > 0)
             {
-                dieScreenText.text = "You Died\n" + lives + " Lives Remaining\nPress Enter to Respawn";
+                dieScreenText.text = "You Died!\n" + lives + " Lives Remaining\nPress Enter to Respawn";
             }
             else
             {
