@@ -123,29 +123,33 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator ShowLevelIntro()
     {
-        if (levelIntroText == null) yield break;
+    if (levelIntroText == null) yield break;
 
-        levelIntroText.text = "Level " + level;
-        levelIntroText.gameObject.SetActive(true);
+    levelIntroText.text = "Level " + level;
+    levelIntroText.gameObject.SetActive(true);
 
-        // Flash settings
-        // How many times it blinks 
-        int flashCount = 6;        
-        // Seconds between on/off 
-        float flashInterval = 0.2f; 
+    // Flash settings
+    // How many times text blinks 
+    int flashCount = 6;        
+    // Seconds between on/off
+    float flashInterval = 0.2f; 
 
-        for (int i = 0; i < flashCount; i++)
-        {
-            levelIntroText.enabled = !levelIntroText.enabled;
-            yield return new WaitForSeconds(flashInterval);
-        }
+    for (int i = 0; i < flashCount; i++)
+    {
+        // Stop if scene changed 
+        if (levelIntroText == null) yield break; 
+        levelIntroText.enabled = !levelIntroText.enabled;
+        yield return new WaitForSeconds(flashInterval);
+    }
 
-        // Make sure it ends visible, not mid-flash 
-        levelIntroText.enabled = true; 
-        // Hold fully visible for a bit 
-        yield return new WaitForSeconds(1f); 
+    if (levelIntroText == null) yield break;
+    // Make sure it ends visible, not mid-flash 
+    levelIntroText.enabled = true; 
+    // Hold fully visible for a bit 
+    yield return new WaitForSeconds(1f); 
 
-        levelIntroText.gameObject.SetActive(false);
+    if (levelIntroText == null) yield break;
+    levelIntroText.gameObject.SetActive(false);
     }
 
     private void UpdateLivesUI()
