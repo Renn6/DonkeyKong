@@ -24,6 +24,12 @@ public class GameManager : MonoBehaviour
     private float elapsedTime;
     private bool timerRunning;
 
+    // Results screen tracking (index 1-3 = Level 1-3, index 0 unused)
+    private const int FinalLevel = 3;
+    private const string ResultsSceneName = "ResultsScreen";
+    private readonly float[] levelTimes = new float[FinalLevel + 1];
+    private float levelStartTime;
+
     private void Update()
     {
         if (timerRunning)
@@ -39,6 +45,8 @@ public class GameManager : MonoBehaviour
     }
 
     public float GetElapsedTime() => elapsedTime;
+    public float GetLevelTime(int levelNumber) => levelTimes[levelNumber];
+    public float GetTotalTime() => elapsedTime;
 
     private void Awake()
     {
@@ -56,6 +64,8 @@ public class GameManager : MonoBehaviour
     {
         lives = 3;
         score = 0;
+        System.Array.Clear(levelTimes, 0, levelTimes.Length);
+        levelStartTime = 0f;
         StartTimer();
         LoadLevel(1);
     }
@@ -64,11 +74,12 @@ public class GameManager : MonoBehaviour
     {
         level = index;
 
-        // reset rescue progress every time a level (re)loads
+        // Reset rescue progress every time a level re-loads
         princessesRescued = 0;
         princessesRequired = 1;
 
-        Time.timeScale = 1f; // always ensure gameplay starts unfrozen
+        // Always ensure gameplay starts unfrozen
+        Time.timeScale = 1f; 
         SceneManager.LoadScene(level);
         StartCoroutine(SetupSceneAfterLoad());
 
@@ -84,7 +95,7 @@ public class GameManager : MonoBehaviour
     {
         yield return null;
 
-        // count how many princesses (Objective-tagged objects) this level has
+        // Count how many princesses this level has
         princessesRequired = Mathf.Max(1, GameObject.FindGameObjectsWithTag("Objective").Length);
         princessesRescued = 0;
 
@@ -99,7 +110,7 @@ public class GameManager : MonoBehaviour
         if (diePanelObj != null)
         {
             dieScreenPanel = diePanelObj;
-            dieScreenPanel.SetActive(false); // disable the whole panel here, in code
+            dieScreenPanel.SetActive(false); 
         }
 
         GameObject introObj = GameObject.Find("LevelIntroText");
@@ -117,9 +128,11 @@ public class GameManager : MonoBehaviour
         levelIntroText.text = "Level " + level;
         levelIntroText.gameObject.SetActive(true);
 
-        // flash settings
-        int flashCount = 6;        // how many times it blinks
-        float flashInterval = 0.2f; // seconds between on/off
+        // Flash settings
+        // How many times it blinks 
+        int flashCount = 6;        
+        // Seconds between on/off 
+        float flashInterval = 0.2f; 
 
         for (int i = 0; i < flashCount; i++)
         {
@@ -127,8 +140,10 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(flashInterval);
         }
 
-        levelIntroText.enabled = true; // make sure it ends visible, not mid-flash
-        yield return new WaitForSeconds(1f); // hold fully visible for a bit
+        // Make sure it ends visible, not mid-flash 
+        levelIntroText.enabled = true; 
+        // Hold fully visible for a bit 
+        yield return new WaitForSeconds(1f); 
 
         levelIntroText.gameObject.SetActive(false);
     }
@@ -153,7 +168,7 @@ public class GameManager : MonoBehaviour
     public void PrincessRescued()
     {
         princessesRescued++;
-        score += 500; // bonus per princess (remove if you don't want it)
+        score += 500; 
         UpdateScoreUI();
 
         if (princessesRescued >= princessesRequired)
@@ -166,15 +181,21 @@ public class GameManager : MonoBehaviour
     {
         score += 1000;
         UpdateScoreUI();
-        int nextLevel = level + 1;
 
-        if (nextLevel < SceneManager.sceneCountInBuildSettings)
+        // Record how long this level took 
+        levelTimes[level] = elapsedTime - levelStartTime;
+        levelStartTime = elapsedTime;
+
+        if (level >= FinalLevel)
         {
-            LoadLevel(nextLevel);
+            // Game finished, stop the clock and show the results screen
+            timerRunning = false;
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(ResultsSceneName);
         }
         else
         {
-            LoadLevel(1);
+            LoadLevel(level + 1);
         }
     }
 
@@ -202,11 +223,11 @@ public class GameManager : MonoBehaviour
             dieScreenPanel.SetActive(true);
             Time.timeScale = 0f;
 
-            // brief pause so the player doesn't accidentally skip it
+            // Brief pause so the player doesn't accidentally skip it
             // by still holding a key down from the moment they died
             yield return new WaitForSecondsRealtime(0.3f);
 
-            // wait here until the player actually presses Enter
+            // Wait here until player presses Enter
             while (!Input.GetKeyDown(KeyCode.Return) && !Input.GetKeyDown(KeyCode.KeypadEnter))
             {
                 yield return null;
