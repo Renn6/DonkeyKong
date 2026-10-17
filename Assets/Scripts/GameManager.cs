@@ -96,7 +96,7 @@ public class GameManager : MonoBehaviour
     {
         yield return null;
 
-        // Count how many princesses this level has (for logging / HUD)
+        // Count how many princesses this level has
         princessesRequired = Mathf.Max(1, GameObject.FindGameObjectsWithTag("Objective").Length);
         princessesRescued = 0;
         Debug.Log($"Level {level} loaded: {princessesRequired} princess(es) to rescue");
@@ -105,7 +105,7 @@ public class GameManager : MonoBehaviour
         if (livesObj != null) livesText = livesObj.GetComponent<TextMeshProUGUI>();
         UpdateLivesUI();
 
-        // NEW: find the score text so the score actually displays
+        // Princess counter (still uses the object named "ScoreText")
         GameObject scoreObj = GameObject.Find("ScoreText");
         if (scoreObj != null) scoreText = scoreObj.GetComponent<TextMeshProUGUI>();
         else Debug.LogWarning("No object named 'ScoreText' found in this scene");
@@ -162,6 +162,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Shows princesses rescued, e.g. "Princesses: 2/3"
     private void UpdateScoreUI()
     {
         if (scoreText != null)
@@ -182,7 +183,7 @@ public class GameManager : MonoBehaviour
         UpdateScoreUI();
 
         int remaining = GameObject.FindGameObjectsWithTag("Objective").Length;
-        Debug.Log($"Princess rescued ({princessesRescued}/{princessesRequired}), {remaining} remaining, score {score}");
+        Debug.Log($"Princess rescued ({princessesRescued}/{princessesRequired}), {remaining} remaining");
 
         if (remaining <= 0)
         {
@@ -220,6 +221,13 @@ public class GameManager : MonoBehaviour
         lives--;
         UpdateLivesUI();
         StartCoroutine(ShowDieScreenThenContinue());
+    }
+
+    // Called by the ExtraLife pickup
+    public void AddLife()
+    {
+        lives++;
+        UpdateLivesUI();
     }
 
     private IEnumerator ShowDieScreenThenContinue()

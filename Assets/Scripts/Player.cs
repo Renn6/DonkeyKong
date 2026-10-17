@@ -28,8 +28,8 @@ public class Player : MonoBehaviour
         rigidbody = GetComponent<Rigidbody2D>();
         capsuleCollider = GetComponent<CapsuleCollider2D>();
 
-        // NoFilter keeps the old behaviour (includes trigger colliders like ladders)
-        contactFilter = new ContactFilter2D().NoFilter();
+        // noFilter keeps the old behaviour (includes trigger colliders like ladders)
+        contactFilter = ContactFilter2D.noFilter;
     }
 
     private void OnEnable()
