@@ -10,8 +10,9 @@ public class Player : MonoBehaviour
 
     private Rigidbody2D rigidbody;
     private CapsuleCollider2D capsuleCollider;
-    
+
     private readonly Collider2D[] overlaps = new Collider2D[4];
+    private ContactFilter2D contactFilter;
     private Vector2 direction;
 
     public float moveSpeed = 1f;
@@ -19,17 +20,21 @@ public class Player : MonoBehaviour
 
     private bool grounded;
     private bool climbing;
+    private bool dead;
 
     private void Awake()
     {
-        spriteRenderer = GetComponent <SpriteRenderer>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         rigidbody = GetComponent<Rigidbody2D>();
         capsuleCollider = GetComponent<CapsuleCollider2D>();
+
+        // NoFilter keeps the old behaviour (includes trigger colliders like ladders)
+        contactFilter = new ContactFilter2D().NoFilter();
     }
 
     private void OnEnable()
     {
-        InvokeRepeating(nameof(AnimateSprite), 1f/12f, 1f/12f);
+        InvokeRepeating(nameof(AnimateSprite), 1f / 12f, 1f / 12f);
     }
 
     private void OnDisable()
@@ -41,18 +46,18 @@ public class Player : MonoBehaviour
     {
         grounded = false;
         climbing = false;
-        
+
         Vector2 size = capsuleCollider.bounds.size;
         size.y += 0.1f;
         size.x /= 2f;
 
-        int amount = Physics2D.OverlapBoxNonAlloc(transform.position, size, 0f, overlaps);
+        int amount = Physics2D.OverlapBox(transform.position, size, 0f, contactFilter, overlaps);
 
         for (int i = 0; i < amount; i++)
         {
             GameObject hit = overlaps[i].gameObject;
 
-            if(hit.layer == LayerMask.NameToLayer("Ground"))
+            if (hit.layer == LayerMask.NameToLayer("Ground"))
             {
                 grounded = hit.transform.position.y < (transform.position.y - 0.5f);
 
@@ -68,6 +73,7 @@ public class Player : MonoBehaviour
     private void Update()
     {
         CheckCollision();
+
         if (climbing)
         {
             direction.y = Input.GetAxis("Jump") * moveSpeed;
@@ -75,22 +81,24 @@ public class Player : MonoBehaviour
         else if (grounded && Input.GetButtonDown("Jump"))
         {
             direction = Vector2.up * jumpStrength;
-        } else
+        }
+        else
         {
             direction += Physics2D.gravity * Time.deltaTime;
         }
 
         direction.x = Input.GetAxis("Horizontal") * moveSpeed;
-        
+
         if (grounded)
         {
-             direction.y = Mathf.Max(direction.y, -1f);
+            direction.y = Mathf.Max(direction.y, -1f);
         }
 
         if (direction.x > 0f)
         {
             transform.eulerAngles = Vector3.zero;
-        } else if (direction.x < 0f)
+        }
+        else if (direction.x < 0f)
         {
             transform.eulerAngles = new Vector3(0f, 180f, 0f);
         }
@@ -127,18 +135,30 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Objective"))
-        {
-            // princess rescued: remove her so she can't be counted twice,
-            // then let the GameManager decide whether the level is finished
-            collision.gameObject.SetActive(false);
-            FindFirstObjectByType<GameManager>().PrincessRescued();
-        }
-        else if (collision.gameObject.CompareTag("Obstacle"))
-        {
-            enabled = false;
-            FindFirstObjectByType<GameManager>().LevelFailed();     
-        }
+        HandleHit(collision.gameObject);
     }
 
+    // Also works if the princess/barrel colliders are set to "Is Trigger"
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        HandleHit(other.gameObject);
+    }
+
+    private void HandleHit(GameObject other)
+    {
+        if (dead || GameManager.Instance == null) return;
+
+        if (other.CompareTag("Objective"))
+        {
+            // Deactivate first so the GameManager's "any princesses left?" check is accurate
+            other.SetActive(false);
+            GameManager.Instance.PrincessRescued();
+        }
+        else if (other.CompareTag("Obstacle"))
+        {
+            dead = true;
+            enabled = false;
+            GameManager.Instance.LevelFailed();
+        }
+    }
 }
