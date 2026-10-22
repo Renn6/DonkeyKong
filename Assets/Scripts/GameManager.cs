@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,7 +15,29 @@ public class GameManager : MonoBehaviour
     private int princessesRequired = 1;
     private bool levelEnding;
 
-    public static GameManager Instance { get; private set; }
+    // Remembers rescued princesses across deaths. Only cleared on a new game.
+    private readonly HashSet<string> rescuedPrincesses = new HashSet<string>();
+
+    private static GameManager instance;
+
+    // If no GameManager exists yet (e.g. none in the menu scene), one is created automatically
+    public static GameManager Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindAnyObjectByType<GameManager>();
+
+                if (instance == null)
+                {
+                    GameObject go = new GameObject("GameManager");
+                    instance = go.AddComponent<GameManager>();
+                }
+            }
+            return instance;
+        }
+    }
 
     private TextMeshProUGUI livesText;
     private TextMeshProUGUI scoreText;
@@ -30,6 +53,18 @@ public class GameManager : MonoBehaviour
     private const string ResultsSceneName = "ResultsScreen";
     private readonly float[] levelTimes = new float[FinalLevel + 1];
     private float levelStartTime;
+
+    private void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
 
     private void Update()
     {
@@ -49,13 +84,6 @@ public class GameManager : MonoBehaviour
     public float GetLevelTime(int levelNumber) => levelTimes[levelNumber];
     public float GetTotalTime() => elapsedTime;
 
-    private void Awake()
-    {
-        if (Instance != null) { Destroy(gameObject); return; }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
-
     public void StartGame()
     {
         NewGame();
@@ -65,6 +93,7 @@ public class GameManager : MonoBehaviour
     {
         lives = 3;
         score = 0;
+        rescuedPrincesses.Clear(); // full reset only happens here
         System.Array.Clear(levelTimes, 0, levelTimes.Length);
         levelStartTime = 0f;
         StartTimer();
@@ -75,7 +104,6 @@ public class GameManager : MonoBehaviour
     {
         level = index;
 
-        // Reset rescue progress every time a level re-loads
         princessesRescued = 0;
         princessesRequired = 1;
         levelEnding = false;
@@ -92,14 +120,33 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Unique key for a princess: level + name + position
+    private string PrincessKey(GameObject princess)
+    {
+        Vector3 p = princess.transform.position;
+        return level + "_" + princess.name + "_" +
+               Mathf.RoundToInt(p.x * 100f) + "_" + Mathf.RoundToInt(p.y * 100f);
+    }
+
     private IEnumerator SetupSceneAfterLoad()
     {
         yield return null;
 
-        // Count how many princesses this level has
-        princessesRequired = Mathf.Max(1, GameObject.FindGameObjectsWithTag("Objective").Length);
+        // Count the princesses in this level, then switch off any already rescued
+        GameObject[] princesses = GameObject.FindGameObjectsWithTag("Objective");
+        princessesRequired = Mathf.Max(1, princesses.Length);
         princessesRescued = 0;
-        Debug.Log($"Level {level} loaded: {princessesRequired} princess(es) to rescue");
+
+        foreach (GameObject p in princesses)
+        {
+            if (rescuedPrincesses.Contains(PrincessKey(p)))
+            {
+                p.SetActive(false);
+                princessesRescued++;
+            }
+        }
+
+        Debug.Log($"Level {level} loaded: {princessesRescued}/{princessesRequired} princesses already rescued");
 
         GameObject livesObj = GameObject.Find("LivesText");
         if (livesObj != null) livesText = livesObj.GetComponent<TextMeshProUGUI>();
@@ -174,9 +221,12 @@ public class GameManager : MonoBehaviour
     // Called by the Player each time a princess is rescued.
     // The Player deactivates the princess BEFORE calling this, so any active
     // "Objective" still in the scene is a princess who hasn't been rescued yet.
-    public void PrincessRescued()
+    public void PrincessRescued(GameObject princess)
     {
         if (levelEnding) return;
+
+        // Remember this princess so she stays rescued if the player dies
+        rescuedPrincesses.Add(PrincessKey(princess));
 
         princessesRescued++;
         score += 500;

@@ -152,7 +152,8 @@ public class Player : MonoBehaviour
         {
             // Deactivate first so the GameManager's "any princesses left?" check is accurate
             other.SetActive(false);
-            GameManager.Instance.PrincessRescued();
+            // Pass the princess so the GameManager can remember she's been rescued
+            GameManager.Instance.PrincessRescued(other);
         }
         else if (other.CompareTag("Obstacle"))
         {
