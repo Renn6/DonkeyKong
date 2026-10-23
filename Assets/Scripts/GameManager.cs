@@ -232,6 +232,8 @@ public class GameManager : MonoBehaviour
         score += 500;
         UpdateScoreUI();
 
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayRescue();
+
         int remaining = GameObject.FindGameObjectsWithTag("Objective").Length;
         Debug.Log($"Princess rescued ({princessesRescued}/{princessesRequired}), {remaining} remaining");
 
@@ -270,6 +272,9 @@ public class GameManager : MonoBehaviour
     {
         lives--;
         UpdateLivesUI();
+
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayDeath();
+
         StartCoroutine(ShowDieScreenThenContinue());
     }
 
@@ -278,6 +283,8 @@ public class GameManager : MonoBehaviour
     {
         lives++;
         UpdateLivesUI();
+
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayExtraLife();
     }
 
     private IEnumerator ShowDieScreenThenContinue()

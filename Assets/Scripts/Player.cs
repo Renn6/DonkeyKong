@@ -81,6 +81,8 @@ public class Player : MonoBehaviour
         else if (grounded && Input.GetButtonDown("Jump"))
         {
             direction = Vector2.up * jumpStrength;
+
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayJump();
         }
         else
         {
